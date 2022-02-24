@@ -17,30 +17,63 @@ use self::crossterm::event::read as KeyPressToEvent;
 use self::crossterm::style::Print as CrossTermPrint;
 use self::crossterm::terminal::enable_raw_mode;
 use self::crossterm::terminal::disable_raw_mode;
+use super::utils;
 
 // ----------------------------------------------------------------
 // Structure
 // ----------------------------------------------------------------
 
-pub struct ConsoleText {
-    pub text: String,
+/// The data type for console interactions.
+///
+/// ## Parts ##
+///
+/// ```rust
+/// struct ConsoleResponse {
+///     pub cancel: bool, // whether user pressed CTRL + D
+///     pub quit: bool,   // whether user pressed CTRL + C
+///     // ...
+/// }
+/// ```
+///
+/// ## Methods/Examples ##
+///
+/// ```rust
+/// use wordle::core::console::ConsoleResponse;
+/// let mut response = ConsoleResponse::new();
+/// assert_eq!(response.cancel, false);
+/// assert_eq!(response.quit, false);
+/// response.insert("this iz");
+/// response.insert(" ");
+/// response.insert("a");
+/// response.insert(" ");
+/// response.insert("text");
+/// assert_eq!(response.to_string(), "this iz a text");
+/// response.move_left(7);
+/// response.delete();
+/// assert_eq!(response.to_string(), "this i a text");
+/// response.insert("s");
+/// assert_eq!(response.to_string(), "this is a text");
+/// response.move_right(2);
+/// response.delete();
+/// response.insert("some");
+/// assert_eq!(response.to_string(), "this is some text");
+/// ```
+pub struct ConsoleResponse {
     pub cancel: bool,
     pub quit: bool,
     symbols: Vec<String>,
     cursor: usize,
-    recompute: bool,
 }
 
 // ----------------------------------------------------------------
 // Implementation
 // ----------------------------------------------------------------
 
-impl ConsoleText {
+impl ConsoleResponse {
     pub fn new() -> Self {
-        let text = String::new();
         let symbols: Vec<String> = Vec::<String>::new();
         let cursor: usize = 0;
-        return ConsoleText {text, symbols, cursor, cancel: false, quit: false, recompute: false};
+        return ConsoleResponse {symbols, cursor, cancel: false, quit: false};
     }
 
     pub fn len(self: &Self) -> usize {
@@ -80,50 +113,60 @@ impl ConsoleText {
         );
     }
 
-    fn move_left(self: &mut Self) -> bool {
-        if self.cursor > 0 {
+    pub fn move_left(self: &mut Self, i: u32) -> bool {
+        let mut ii = i.clone();
+        let mut moved = false;
+        while ii > 0 && self.cursor > 0 {
             self.cursor -= 1;
-            return true;
+            moved = true;
+            ii -= 1;
         }
-        return false;
+        return moved;
     }
 
-    fn move_right(self: &mut Self) -> bool {
-        if self.cursor < self.len() {
+    pub fn move_right(self: &mut Self, i: u32) -> bool {
+        let mut ii = i.clone();
+        let mut moved = false;
+        while ii > 0 && self.cursor < self.len() {
             self.cursor += 1;
-            return true;
+            moved = true;
+            ii -= 1;
         }
-        return false;
+        return moved;
     }
 
-    fn insert(self: &mut Self, value: &String) {
+    pub fn insert(self: &mut Self, value: &str) {
+        let letters = utils::string_to_chars(&value.to_string());
+        let n = letters.len();
         if self.cursor >= self.len() {
             self.cursor = self.len();
-            self.symbols.push(value.clone());
-        } else {
-            let mut text_new: Vec<String> = Vec::<String>::new();
-            for (i, value_current) in self.symbols.iter().enumerate() {
-                if i == self.cursor {
-                    text_new.push(value.clone());
-                }
-                text_new.push(value_current.clone());
+            for letter in &letters {
+                self.symbols.push(letter.to_string());
             }
-            self.symbols = text_new;
+        } else {
+            let mut symbols: Vec<String> = Vec::<String>::new();
+            for (i, a) in self.symbols.iter().enumerate() {
+                if i == self.cursor {
+                    for letter in &letters {
+                        symbols.push(letter.to_string());
+                    }
+                }
+                symbols.push(a.clone());
+            }
+            self.symbols = symbols;
         }
-        self.move_right();
-        self.recompute = true;
+        self.move_right(n as u32);
     }
 
-    fn delete(self: &mut Self) -> bool {
+    pub fn delete(self: &mut Self) -> bool {
         if self.len() <= 0 || self.cursor == 0 {
             return false;
         }
-        self.move_left();
-        self.recompute = true;
+        self.move_left(1);
         return self.delete_ahead();
     }
 
-    fn delete_ahead(self: &mut Self) -> bool {
+    pub fn delete_ahead(self: &mut Self) -> bool {
         if self.cursor >= self.len() {
             return false;
         }
@@ -133,7 +176,6 @@ impl ConsoleText {
             text_new.push(value.clone());
         }
         self.symbols = text_new;
-        self.recompute = true;
         return true;
     }
 }
@@ -142,9 +184,31 @@ impl ConsoleText {
 // Method
 // ----------------------------------------------------------------
 
-/// Main method: read terminal
-pub fn read_terminal(message: &str) -> ConsoleText {
-    let mut console = ConsoleText::new();
+/// Starts an interactive session on the terminal,
+/// which allows for more exact key capture.
+///
+/// ## Arguments ##
+///
+/// - `message` - an initial string to print to the console.
+///               By default the cursor starts after this.
+///
+/// ## Returns ##
+///
+/// `response: ConsoleResponse`, which contains information
+/// about the text entered, and whether the user has entered
+/// key combinations for cancel/quit.
+///
+/// ## Examples ##
+///
+/// ```rust
+/// use wordle::core::console::interaction;
+/// let response = interaction("Enter your name >> ");
+/// assert_eq!(response.to_string(), "");
+/// assert_eq!(response.cancel, false);
+/// assert_eq!(response.quit, false);
+/// ```
+pub fn interaction(message: &str) -> ConsoleResponse {
+    let mut response = ConsoleResponse::new();
     let mut stdout = io::stdout();
 
     // Initialise the console:
@@ -161,28 +225,28 @@ pub fn read_terminal(message: &str) -> ConsoleText {
                     // capture escape keys:
                     Key(KeyEvent{ code: KeyCode::Char('c'), modifiers: KeyModifiers::CONTROL })
                     => {
-                        console = ConsoleText::new();
-                        console.cancel = false;
-                        console.quit = true;
+                        response = ConsoleResponse::new();
+                        response.cancel = false;
+                        response.quit = true;
                         break;
                     },
                     Key(KeyEvent{ code: KeyCode::Char('d'), modifiers: KeyModifiers::CONTROL })
                     => {
-                        console = ConsoleText::new();
-                        console.cancel = true;
-                        console.quit = false;
+                        response = ConsoleResponse::new();
+                        response.cancel = true;
+                        response.quit = false;
                         break;
                     },
                     Key(KeyEvent{ code: KeyCode::Enter, modifiers: _ })
                     => {
-                        console.cancel = false;
-                        console.quit = false;
+                        response.cancel = false;
+                        response.quit = false;
                         break;
                     },
                     // deletion:
                     Key(KeyEvent{ code: KeyCode::Backspace, modifiers: _ }) => {
-                        if console.delete() {
-                            let (_, tail) = console.split();
+                        if response.delete() {
+                            let (_, tail) = response.split();
                             let n = tail.len() as u16;
                             execute!(
                                 stdout,
@@ -200,13 +264,13 @@ pub fn read_terminal(message: &str) -> ConsoleText {
                     => { },
                     Key(KeyEvent{ code: KeyCode::Left, modifiers: _ })
                     => {
-                        if console.move_left() {
+                        if response.move_left(1) {
                             execute!(stdout, CrossTermCursor::MoveLeft(1)).unwrap();
                         }
                     },
                     Key(KeyEvent{ code: KeyCode::Right, modifiers: _ })
                     => {
-                        if console.move_right() {
+                        if response.move_right(1) {
                             execute!(stdout, CrossTermCursor::MoveRight(1)).unwrap();
                         }
                     },
@@ -215,9 +279,9 @@ pub fn read_terminal(message: &str) -> ConsoleText {
                     => {
                         match code {
                             KeyCode::Char(symb) => {
-                                let (_, tail) = console.split();
+                                let (_, tail) = response.split();
                                 let n = tail.len() as u16;
-                                console.insert(&symb.to_string());
+                                response.insert(symb.to_string().as_str());
                                 execute!(
                                     stdout,
                                     CrossTermPrint(symb),
@@ -240,5 +304,5 @@ pub fn read_terminal(message: &str) -> ConsoleText {
     // disabling raw mode
     disable_raw_mode().unwrap();
     println!("");
-    return console;
+    return response;
 }

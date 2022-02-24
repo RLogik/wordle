@@ -119,7 +119,7 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
 
 fn sub_menu_next_guess(config: &ConfigParams) -> (WordlState, bool, bool) {
     // let example: WordlState = WordlState::new(EXAMPLE_GUESS, EXAMPLE_FEEDBACK);
-    let response = cli::prompt::user_input(
+    let response = cli::prompt::input(
         "\nEnter your guess >> ",
         // validator:
         closure::closure!(move config, |guess: &String| {
@@ -145,7 +145,7 @@ fn sub_menu_next_guess(config: &ConfigParams) -> (WordlState, bool, bool) {
     ]);
 
     let guess_ = guess.clone();
-    let response = cli::prompt::user_input(
+    let response = cli::prompt::input(
         message.as_str(),
         // validator:
         closure::closure!(move guess_, move config, |feedback: &String| {
