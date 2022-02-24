@@ -56,8 +56,8 @@ pub fn reduce_sort_by_remaining_size_then_entropy_then_uniqueness(words: &mut Ve
 // Tactic sort by average distance to other words
 // ----------------------------------------------------------------
 
-fn get_distance(words: &Vec<String>) -> HashMap<String, (f64, f64)> {
-    let mut corr: HashMap<String, (f64, f64)> = HashMap::new();
+fn get_distances(words: &Vec<String>) -> HashMap<String, (f64, f64)> {
+    let mut dist: HashMap<String, (f64, f64)> = HashMap::new();
     let n = words.len();
     for (_, guess) in words.iter().enumerate() {
         let mut count1 = 0;
@@ -69,13 +69,13 @@ fn get_distance(words: &Vec<String>) -> HashMap<String, (f64, f64)> {
         }
         let p1: f64 = (count1 as f64)/(n as f64);
         let p2: f64 = (count2 as f64)/(n as f64);
-        corr.insert(guess.clone(), (p1, p2));
+        dist.insert(guess.clone(), (p1, p2));
     }
-    return corr;
+    return dist;
 }
 
 pub fn reduce_sort_by_distance_then_entropy_then_uniqueness(words: &mut Vec<String>) {
-    let dist = get_distance(&*words);
+    let dist = get_distances(&*words);
     let entropy = get_entropy(&*words);
     let cmp = |u1: &String, u2: &String| {
         let (n_incorrect1, n_shift1) = *dist.get(u1).unwrap();

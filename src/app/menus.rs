@@ -5,8 +5,8 @@
 extern crate dyn_fmt;
 extern crate closure;
 
-use self::dyn_fmt::AsStrFormatExt;
 use std::io::Error;
+use self::dyn_fmt::AsStrFormatExt;
 
 use crate::core::utils;
 use crate::cli;
