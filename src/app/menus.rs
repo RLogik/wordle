@@ -78,7 +78,16 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
             display_words(&words_remaining, config.max_display_length as i32)
         }
         // ask for next guess + feedback from game:
-        state = sub_menu_next_guess(config);
+        loop {
+            let (state_, cancel, quit) = sub_menu_next_guess(config);
+            state = state_;
+            if quit {
+                return;
+            } else if cancel {
+                continue;
+            }
+            break;
+        }
         println!("\nThe current state is: {}.", state.to_string_with_feedback());
         // update state:
         words_remaining = state.constrain(&words_remaining);
@@ -108,15 +117,19 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
     }
 }
 
-fn sub_menu_next_guess(config: &ConfigParams) -> WordlState {
+fn sub_menu_next_guess(config: &ConfigParams) -> (WordlState, bool, bool) {
     // let example: WordlState = WordlState::new(EXAMPLE_GUESS, EXAMPLE_FEEDBACK);
-    let guess = cli::prompt::user_input(
+    let response = cli::prompt::user_input(
         "\nEnter your guess >> ",
         // validator:
         closure::closure!(move config, |guess: &String| {
             return guess_validators::validate_guess(guess, &config);
         })
     );
+    if response.cancel || response.quit {
+        return (WordlState::empty(), response.cancel, response.quit);
+    }
+    let guess = response.to_string();
 
     let message = utils::dedent_ignore_first_last(
         "
@@ -132,13 +145,17 @@ fn sub_menu_next_guess(config: &ConfigParams) -> WordlState {
     ]);
 
     let guess_ = guess.clone();
-    let feedback = cli::prompt::user_input(
+    let response = cli::prompt::user_input(
         message.as_str(),
         // validator:
         closure::closure!(move guess_, move config, |feedback: &String| {
             return guess_validators::validate_feedback(&guess_, feedback, config);
         })
     );
+    if response.cancel || response.quit {
+        return (WordlState::empty(), response.cancel, response.quit);
+    }
+    let feedback = response.to_string();
 
-    return WordlState::new(guess.as_str(), feedback.as_str());
+    return (WordlState::new(guess.as_str(), feedback.as_str()), false, false);
 }

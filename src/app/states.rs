@@ -149,6 +149,16 @@ impl WordlCharState {
 // ----------------------------------------------------------------
 
 impl WordlState {
+    /// creates empty wordl state
+    pub fn empty() -> Self {
+        return WordlState {
+            states: Vec::<WordlCharState>::new(),
+            constraints: Vec::<WordlConstraint>::new(),
+            repr: String::from(""),
+            repr_feedback: String::from("")
+        };
+    }
+
     /// creates new wordl state
     pub fn new(guess: &str, feedback: &str) -> Self {
         let guess_chars = utils::chars_to_uppercase(utils::string_to_chars(guess));

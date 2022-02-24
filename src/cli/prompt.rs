@@ -2,12 +2,9 @@
 // IMPORTS
 // ----------------------------------------------------------------
 
-extern crate text_io;
-
-use std::io;
-use std::io::Write;
-
 use crate::core::utils;
+use crate::core::console::ConsoleText;
+use crate::core::console::read_terminal;
 
 // ----------------------------------------------------------------
 // Prompt confirm
@@ -19,17 +16,17 @@ pub fn confirm(message: &str) -> bool {
     let response = user_input(message, |text| {
         re_yes.is_match(text) || re_no.is_match(text)
     });
-    return re_yes.is_match(&response);
+    if response.cancel || response.quit {
+        return false;
+    }
+    return re_yes.is_match(&response.to_string());
 }
 
-pub fn user_input<F: Fn(&String) -> bool>(message: &str, validator: F) -> String {
+pub fn user_input<F: Fn(&String) -> bool>(message: &str, validator: F) -> ConsoleText {
     loop {
-        print!("{}", message);
-        io::stdout().flush().expect("Could not write to console");
-        // io::stdin().read_line(&mut line).expect("Error: unable to read user input!");
-        let line = text_io::read!("{}\n");
-        if validator(&line) {
-            return line;
+        let response = read_terminal(message);
+        if response.cancel || response.quit || validator(&response.to_string()) {
+            return response;
         }
     }
 }
