@@ -5,7 +5,6 @@
 extern crate dyn_fmt;
 extern crate closure;
 
-use std::io::Error;
 use self::dyn_fmt::AsStrFormatExt;
 
 use crate::core::utils;
@@ -30,7 +29,7 @@ static EXAMPLE_FEEDBACK: &str = "xx-x1";
 // Main menu
 // ----------------------------------------------------------------
 
-pub fn main_menu(config: &ConfigParams, words: &Vec<String>) -> Result<String, Error> {
+pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
     let mut state: WordlState;
     let mut words_remaining = words.clone();
     while words_remaining.len() > 1 {
@@ -50,12 +49,7 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) -> Result<String, E
         }
         // ask for next guess + feedback from game:
         state = sub_menu_next_guess(config);
-        println!("{}", utils::dedent_ignore_first_last(
-            "
-            You entered
-              {}.
-            "
-        ).format(&[state.to_string_with_feedback()]));
+        println!("\nThe current state is: {}.", state.to_string_with_feedback());
         // update state:
         words_remaining = state.constrain(&words_remaining);
     }
@@ -70,20 +64,23 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) -> Result<String, E
                   {}.
                 "
             ).format(&[state.to_string_with_feedback()]));
-            println!("");
-            return Ok(word.clone());
         },
         None => {
-            // TODO: replace by proper error.
-            panic!("Something went wrong! No words remaining!")
+            eprintln!("[\x1b[93;1mWARNING\x1b[0m] No solution found, as there are no words remaining!");
         },
+    }
+    println!("");
+    if cli::prompt::confirm("Would you like to try again? (y/n) >> ") {
+        main_menu(config, words);
+    } else {
+        println!("\nTerminating programme...\n");
     }
 }
 
 fn sub_menu_next_guess(config: &ConfigParams) -> WordlState {
     // let example: WordlState = WordlState::new(EXAMPLE_GUESS, EXAMPLE_FEEDBACK);
     let guess = cli::prompt::user_input(
-        "\nEnter your guess: ",
+        "\nEnter your guess >> ",
         // validator:
         closure::closure!(move config, |guess: &String| {
             return guess_validators::validate_guess(guess, &config);

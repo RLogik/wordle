@@ -21,9 +21,5 @@ fn main() {
     // set config
     let config = setup::config::set_config(&spec);
     // run methods
-    let result = app::menus::main_menu(&config, &words);
-    match result {
-        Ok(_word) => { },
-        Err(_) => { }
-    }
+    app::menus::main_menu(&config, &words);
 }
