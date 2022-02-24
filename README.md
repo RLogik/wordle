@@ -4,7 +4,7 @@ This is a small **Rust** project which creates an **aided solver** for the Wordl
 The compiled programme when run provides updated optimal ‘next guess‘ suggestions.
 Note that this implementation is currently suited for the [New York Times](https://www.nytimes.com/games/wordle/index.html) version. Technically will work with any other implementation in any language, provided a sufficiently large word list is added to the project.
 
-I first created a prototype in python, which is stored in the folder [./src-py/](src-py/);
+I first created a prototype in python, which is stored in the folder [./src-py/](src-py/).
 
 ## System Requirements ##
 
@@ -59,6 +59,10 @@ and this can also be manually executed.
 
 Since upon building the assets are embedded, this binary artefact can in fact be
 moved anywhere in your system and be executed without requiring this project folder.
+
+## Examples ##
+
+See [./examples/](examples/);
 
 ## Limitations ##
 

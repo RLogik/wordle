@@ -24,6 +24,9 @@
 !/tests
 
 !/examples
+!/examples/img
+!/examples/img/*.png
+!/examples/README.md
 
 !/src-py
 !/src-py/main.py
