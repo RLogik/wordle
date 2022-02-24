@@ -26,12 +26,42 @@ static EXAMPLE_GUESS: &str = "alert";
 static EXAMPLE_FEEDBACK: &str = "xx-x1";
 
 // ----------------------------------------------------------------
+// Title screens
+// ----------------------------------------------------------------
+
+pub fn show_start_screen(config: &ConfigParams) {
+    println!("");
+    println!("{}", utils::dedent_ignore_first_last(
+        "
+        |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+        | \x1b[92;1m{}\x1b[0m
+        |   version: \x1b[1m{}\x1b[0m
+        |   url:     \x1b[2;4m{}\x1b[0m
+        |________
+        "
+    ).format(&[
+        &config.title,
+        &config.version,
+        &config.url,
+    ]));
+}
+
+pub fn show_end_screen(config: &ConfigParams) {
+    println!("");
+    println!("\x1b[3mThank you for using \x1b[92;1m{}\x1b[0m\x1b[3m!\x1b[0m", &config.title);
+    println!("Terminating programme...");
+    println!("");
+}
+
+// ----------------------------------------------------------------
 // Main menu
 // ----------------------------------------------------------------
 
 pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
     let mut state: WordlState;
     let mut words_remaining = words.clone();
+
+    // Main cycle:
     while words_remaining.len() > 1 {
         // sort word list by best guesses:
         if words_remaining.len() <= config.max_length_for_best_optimisation as usize {
@@ -54,6 +84,7 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
         words_remaining = state.constrain(&words_remaining);
     }
 
+    // Handle final state:
     println!("");
     match words_remaining.get(0) {
         Some(word) => {
@@ -69,11 +100,11 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
             eprintln!("[\x1b[93;1mWARNING\x1b[0m] No solution found, as there are no words remaining!");
         },
     }
+
+    // Prompt to try again:
     println!("");
     if cli::prompt::confirm("Would you like to try again? (y/n) >> ") {
         main_menu(config, words);
-    } else {
-        println!("\nTerminating programme...\n");
     }
 }
 

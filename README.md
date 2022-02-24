@@ -76,7 +76,6 @@ technically the aided solver operates in ‘hard mode‘.
 
 ## Future / Todos ##
 
-- better title / end 'screen' when running programme + menus.
 - unit tests.
 - end-to-end tests.
 - examples.

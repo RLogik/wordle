@@ -1,6 +1,9 @@
 info:
-  title: Wordle aided solver.
-  description: Internal settings.
+  title: Wordle aided solver
+  description: |-
+    An app that provides dynamically adjusted optimal suggestions
+    for next guesses in the Wordle game.
+  url: https://github.com/RLogik
 settings:
   size-of-wordle: 5
   max-display-length: 10 # for displaying remaining words in list

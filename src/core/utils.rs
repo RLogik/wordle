@@ -185,3 +185,11 @@ pub fn nr_unique_letters(text: &String) -> usize {
     let counts = get_letters_in_string(text);
     return counts.len();
 }
+
+// ----------------------------------------------------------------
+// METHODS yaml methods
+// ----------------------------------------------------------------
+
+pub fn attribute_or_default<T> (opt: Option<T>, default: T) -> T {
+    return opt.unwrap_or_else(|| default);
+}
