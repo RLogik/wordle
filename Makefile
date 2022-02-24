@@ -50,8 +50,6 @@ run-precheck:
 run:
 	@make run-precheck
 	@dist/${ARTEFACT_NAME} --it --path=${PATH_TO_DATA}
-run-python:
-	@python3 src-py/main.py -it "${PATH_TO_DATA}"
 all: setup build run
 ################################
 # TARGETS: testing
@@ -88,3 +86,10 @@ clean:
 	@find . -type d -name "target" -exec rm -rf {} \; 2> /dev/null
 	cargo clean
 	@exit 0
+################################
+# ACHIVE: Python variant
+################################
+setup-py:
+	@python3 -m pip install -r "src-py/requirements"
+run-py:
+	@python3 src-py/main.py -it "${PATH_TO_DATA}"

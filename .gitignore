@@ -30,6 +30,7 @@
 
 !/src-py
 !/src-py/main.py
+!/src-py/requirements
 
 !/assets
 !/assets/**

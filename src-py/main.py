@@ -1,10 +1,27 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# AUTHOR:       RLogik
+# URL:          https://github.com/RLogik/wordle
+# DATE CREATED: 17.02.2022
+# LAST EDITED:  24.02.2022
+# VERSION:      (see dist/VERSION)
+# DESCRIPTION:  Wordle aided solver
+#   NOTE:
+#   The strategies here are not as optimal as the rust version.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+import os;
 import sys;
+
+os.chdir(os.path.join(os.path.dirname(__file__), '..'));
+sys.path.insert(0, os.getcwd());
+
 import re;
 import math;
 from textwrap import dedent;
