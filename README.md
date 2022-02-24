@@ -77,6 +77,7 @@ technically the aided solver operates in ‘hard mode‘.
 ## Future / Todos ##
 
 - unit tests.
+- more complete rust documentation.
 - end-to-end tests.
 - examples.
 - dynamical loading of word list e.g. from an online source.
