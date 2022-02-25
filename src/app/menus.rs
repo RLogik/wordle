@@ -64,19 +64,28 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
     // Main cycle:
     while words_remaining.len() > 1 {
         // sort word list by best guesses:
-        if words_remaining.len() <= config.max_length_for_best_optimisation as usize {
+        let mut sorted_by_best = false;
+        if words_remaining.len() <= config.max_length_for_best_optimisation {
             // tactics::advanced::reduce_sort_by_remaining_size_then_entropy_then_uniqueness(&mut words_remaining);
             tactics::advanced::reduce_sort_by_distance_then_entropy_then_uniqueness(&mut words_remaining);
         } else {
             tactics::basic::reduce_sort_by_entropy_then_uniqueness(&mut words_remaining);
+            sorted_by_best = false;
         }
+
         // display best guesses:
-        let words_unique = tactics::basic::reduce_to_words_with_unique_letters(&words_remaining);
-        if words_unique.len() > 0 {
-            display_words(&words_unique, config.max_display_length as i32)
+        let n_remaining = words_remaining.len();
+        if sorted_by_best || n_remaining <= config.max_display_length {
+            display_words(&words_remaining, n_remaining, config.max_display_length);
         } else {
-            display_words(&words_remaining, config.max_display_length as i32)
+            let words_unique = tactics::basic::reduce_to_words_with_unique_letters(&words_remaining);
+            if words_unique.len() > 0 {
+                display_words(&words_unique, n_remaining, config.max_display_length);
+            } else {
+                display_words(&words_remaining, n_remaining, config.max_display_length);
+            }
         }
+
         // ask for next guess + feedback from game:
         loop {
             let (state_, cancel, quit) = sub_menu_next_guess(config);

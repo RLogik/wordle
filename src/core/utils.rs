@@ -97,12 +97,18 @@ pub fn read_from_embedded_file(f: EmbeddedFile) -> Result<String, io::Error> {
 // ----------------------------------------------------------------
 
 pub fn i64_to_i8(n: i64) -> i8 {
-    if n > std::i8::MAX as i64 {
-        return std::i8::MAX;
-    } else if n < std::i8::MIN as i64 {
-        return std::i8::MIN;
+    if n > std::i8::MAX as i64 { std::i8::MAX } else if n < std::i8::MIN as i64 { std::i8::MIN } else { n as i8 }
+}
+
+pub fn i64_to_usize(n: i64) -> usize {
+    let nn = n as usize;
+    if nn > std::usize::MAX {
+        return std::usize::MAX;
     }
-    return n as i8;
+    if nn < std::usize::MIN {
+        return std::usize::MIN;
+    }
+    return nn;
 }
 
 // ----------------------------------------------------------------

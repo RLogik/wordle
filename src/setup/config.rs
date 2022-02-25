@@ -16,9 +16,9 @@ pub struct ConfigParams {
     pub version: String,
     pub title: String,
     pub url: String,
-    pub size_of_wordle: i8,
-    pub max_display_length: i8,
-    pub max_length_for_best_optimisation: i64,
+    pub size_of_wordle: usize,
+    pub max_display_length: usize,
+    pub max_length_for_best_optimisation: usize,
     pub hard_mode: bool,
 }
 
@@ -36,11 +36,11 @@ pub fn set_config(spec: &Yaml, version: &String) -> ConfigParams {
         url:
             utils::attribute_or_default(spec["info"]["url"].as_str(), "<url missing>").to_string(),
         size_of_wordle:
-            utils::i64_to_i8(utils::attribute_or_default(spec["settings"]["size-of-wordle"].as_i64(), 4)),
+            utils::i64_to_usize(utils::attribute_or_default(spec["settings"]["size-of-wordle"].as_i64(), 4)),
         max_display_length:
-            utils::i64_to_i8(utils::attribute_or_default(spec["settings"]["max-display-length"].as_i64(), 100)),
+            utils::i64_to_usize(utils::attribute_or_default(spec["settings"]["max-display-length"].as_i64(), 100)),
         max_length_for_best_optimisation:
-            utils::attribute_or_default(spec["settings"]["max-length-for-best-optimisation"].as_i64(), 500),
+            utils::i64_to_usize(utils::attribute_or_default(spec["settings"]["max-length-for-best-optimisation"].as_i64(), 500)),
         hard_mode:
             utils::attribute_or_default(spec["settings"]["hard-mode"].as_bool(), false),
     };

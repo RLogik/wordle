@@ -17,7 +17,7 @@ pub fn validate_guess(guess: &String, config: &ConfigParams) -> bool {
     let n = config.size_of_wordle;
     let re1 = utils::construct_regex(r"^\w*$");
     let re2 = utils::construct_regex(r"^\D*$");
-    if utils::length_of_word(guess) == n as usize && re1.is_match(guess) && re2.is_match(guess) {
+    if utils::length_of_word(guess) == n && re1.is_match(guess) && re2.is_match(guess) {
         return true;
     } else {
         println!("{}\n", utils::dedent_ignore_first_last(
@@ -35,7 +35,7 @@ pub fn validate_guess(guess: &String, config: &ConfigParams) -> bool {
 pub fn validate_feedback(_guess: &String, feedback: &String, config: &ConfigParams) -> bool {
     let n = config.size_of_wordle;
     let re = utils::construct_regex(r"^[01x-]*$");
-    if utils::length_of_word(feedback) == n as usize && re.is_match(feedback) {
+    if utils::length_of_word(feedback) == n && re.is_match(feedback) {
         return true;
     } else {
         print!("{}\n", utils::dedent_ignore_first_last(

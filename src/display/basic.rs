@@ -21,16 +21,26 @@ pub fn display_word(word: &String) -> String {
 // print word list
 // ----------------------------------------------------------------
 
-pub fn display_words(words: &Vec<String>, max_length: i32) {
-    let n_remaining = words.len();
+/// displays a selection of word
+///
+/// ## Arguments ##
+///
+/// - `words` - list of chosen words to be desplayed
+/// - `n_remaining` - length of remaining list of words (NOTE: in general ≥ words.len())
+/// - `max_length` - maximum number of words to display
+///
+/// ## Returns ##
+///
+/// Prints list of words to console with formatting.
+pub fn display_words(words: &Vec<String>, n_remaining: usize, max_length: usize) {
     println!("\n\x1b[4mCurrent best options ({} remaining):\x1b[0m\n", n_remaining);
     for (index, word) in words.iter().enumerate() {
-        if index >= max_length as usize {
+        if index >= max_length {
             break;
         }
         println!("  \x1b[2m{}\x1b[0m", word);
     }
-    if words.len() > max_length as usize {
+    if n_remaining > max_length {
         println!("  ...");
     }
 }
