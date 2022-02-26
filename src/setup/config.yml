@@ -4,6 +4,9 @@ info:
     An app that provides dynamically adjusted optimal suggestions
     for next guesses in the Wordle game.
   url: https://github.com/RLogik
+  notes: |-
+    The Wordle gamme can for example be found under
+    https://www.nytimes.com/games/wordle/index.html .
 settings:
   size-of-wordle: 5
   max-display-length: 10 # for displaying remaining words in list
