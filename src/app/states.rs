@@ -20,7 +20,6 @@ pub struct WordlState {
     repr_feedback: String,
 }
 
-#[derive(Debug)]
 pub struct WordlCharState {
     pub symbol: String,
     pub correct: bool,
