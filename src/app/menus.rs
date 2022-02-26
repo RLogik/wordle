@@ -79,12 +79,15 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
 
         // display best guesses:
         let n_remaining = words_remaining.len();
+        let words_unique: Vec<String>;
+        let mut suggestion = words_remaining.get(0).map(|word| word.clone());
         if sorted_by_best || n_remaining <= config.max_display_length {
             display_words(&words_remaining, n_remaining, config.max_display_length);
         } else {
-            let words_unique = tactics::basic::reduce_to_words_with_unique_letters(&words_remaining);
+            words_unique = tactics::basic::reduce_to_words_with_unique_letters(&words_remaining);
             if words_unique.len() > 0 {
                 display_words(&words_unique, n_remaining, config.max_display_length);
+                suggestion = words_unique.get(0).map(|word| word.clone());
             } else {
                 display_words(&words_remaining, n_remaining, config.max_display_length);
             }
@@ -92,7 +95,7 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
 
         // ask for next guess + feedback from game:
         loop {
-            let (state_, cancel, quit) = sub_menu_next_guess(config);
+            let (state_, cancel, quit) = sub_menu_next_guess(config, &suggestion);
             state = state_;
             if quit {
                 return;
@@ -125,29 +128,52 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
 
     // Prompt to try again:
     println!("");
-    if cli::prompt::confirm("Would you like to try again? (y/n) >> ") {
+    let response = cli::prompt::confirm("Would you like to try again? (y/n) >> ");
+    if response.cancel || response.quit {
+        return;
+    } else if response.state {
         main_menu(config, words);
     }
 }
 
-fn sub_menu_next_guess(config: &ConfigParams) -> (WordlState, bool, bool) {
+fn sub_menu_next_guess(config: &ConfigParams, suggestion: &Option<String>) -> (WordlState, bool, bool) {
     // let example: WordlState = WordlState::new(EXAMPLE_GUESS, EXAMPLE_FEEDBACK);
-    let response = cli::prompt::input(
-        "\nEnter your guess >> ",
-        // validator:
-        closure::closure!(move config, |guess: &String| {
-            return guess_validators::validate_guess(guess, &config);
-        })
-    );
+
+    // give user option to select top guess:
+    let response = cli::prompt::confirm("Choose the top suggestion as your next guess? (y/n) >> ");
     if response.cancel || response.quit {
         return (WordlState::empty(), response.cancel, response.quit);
     }
-    let guess = response.to_string();
+    let guess: String;
+    if response.state {
+        match suggestion {
+            Some(word) => {
+                guess = word.clone();
+            },
+            // this should not happen!
+            None => {
+                panic!("This should not happen!");
+            },
+        }
+    // otherwise ask for input:
+    } else {
+        let response = cli::prompt::input(
+            "\nEnter your guess >> ",
+            // validator:
+            closure::closure!(move config, |guess: &String| {
+                return guess_validators::validate_guess(guess, &config);
+            })
+        );
+        if response.cancel || response.quit {
+            return (WordlState::empty(), response.cancel, response.quit);
+        }
+        guess = response.state;
+    }
 
     let message = utils::dedent_ignore_first_last(
         "
 
-        Enter the feedback: \x1b[1m{}\x1b[0m
+        Enter the feedback to your input \x1b[1m{}\x1b[0m
           \x1b[2mE.g. if it was     \x1b[2;1mx  x  ~  x  √\x1b[0m
           \x1b[2mthen enter \x1b[4;1mxx-x1\x1b[0m\x1b[2m.\x1b[0m
 
@@ -168,7 +194,7 @@ fn sub_menu_next_guess(config: &ConfigParams) -> (WordlState, bool, bool) {
     if response.cancel || response.quit {
         return (WordlState::empty(), response.cancel, response.quit);
     }
-    let feedback = response.to_string();
+    let feedback = response.state;
 
     return (WordlState::new(guess.as_str(), feedback.as_str()), false, false);
 }

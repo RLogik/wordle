@@ -23,14 +23,27 @@ use super::utils;
 // Structure
 // ----------------------------------------------------------------
 
+/// ConsoleResponse<T> - generic structure to summarise responses
+///
+/// ## Parts ##
+///
+/// - `state` - value type T
+/// - `state` - boolean which says if META + D was clicked
+/// - `quit` - boolean which says if META + C was clicked
+pub struct ConsoleResponse<T> {
+    pub state: T,
+    pub cancel: bool,
+    pub quit: bool,
+}
+
 /// The data type for console interactions.
 ///
 /// ## Parts ##
 ///
 /// ```rust
-/// struct ConsoleResponse {
-///     pub cancel: bool, // whether user pressed CTRL + D
-///     pub quit: bool,   // whether user pressed CTRL + C
+/// struct ConsoleTextState {
+///     pub cancel: bool, // whether user pressed META + D
+///     pub quit: bool,   // whether user pressed META + C
 ///     // ...
 /// }
 /// ```
@@ -38,8 +51,8 @@ use super::utils;
 /// ## Methods/Examples ##
 ///
 /// ```rust
-/// use wordle::core::console::ConsoleResponse;
-/// let mut response = ConsoleResponse::new();
+/// use wordle::core::console::ConsoleTextState;
+/// let mut response = ConsoleTextState::new();
 /// assert_eq!(response.cancel, false);
 /// assert_eq!(response.quit, false);
 /// response.insert("this iz");
@@ -58,7 +71,7 @@ use super::utils;
 /// response.insert("some");
 /// assert_eq!(response.to_string(), "this is some text");
 /// ```
-pub struct ConsoleResponse {
+pub struct ConsoleTextState {
     pub cancel: bool,
     pub quit: bool,
     symbols: Vec<String>,
@@ -69,11 +82,11 @@ pub struct ConsoleResponse {
 // Implementation
 // ----------------------------------------------------------------
 
-impl ConsoleResponse {
+impl ConsoleTextState {
     pub fn new() -> Self {
         let symbols: Vec<String> = Vec::<String>::new();
         let cursor: usize = 0;
-        return ConsoleResponse {symbols, cursor, cancel: false, quit: false};
+        return ConsoleTextState {symbols, cursor, cancel: false, quit: false};
     }
 
     pub fn len(self: &Self) -> usize {
@@ -105,6 +118,7 @@ impl ConsoleResponse {
         );
     }
 
+    #[allow(dead_code)]
     pub fn split_three(self: &Self) -> (String,String,String) {
         return (
             self.segment(|i| i < self.cursor),
@@ -194,7 +208,7 @@ impl ConsoleResponse {
 ///
 /// ## Returns ##
 ///
-/// `response: ConsoleResponse`, which contains information
+/// `response: ConsoleTextState`, which contains information
 /// about the text entered, and whether the user has entered
 /// key combinations for cancel/quit.
 ///
@@ -203,12 +217,12 @@ impl ConsoleResponse {
 /// ```rust
 /// use wordle::core::console::interaction;
 /// let response = interaction("Enter your name >> ");
-/// assert_eq!(response.to_string(), "");
+/// assert_eq!(response.state, "");
 /// assert_eq!(response.cancel, false);
 /// assert_eq!(response.quit, false);
 /// ```
-pub fn interaction(message: &str) -> ConsoleResponse {
-    let mut response = ConsoleResponse::new();
+pub fn interaction(message: &str) -> ConsoleResponse<String> {
+    let mut response = ConsoleTextState::new();
     let mut stdout = io::stdout();
 
     // Initialise the console:
@@ -225,14 +239,14 @@ pub fn interaction(message: &str) -> ConsoleResponse {
                     // capture escape keys:
                     Key(KeyEvent{ code: KeyCode::Char('c'), modifiers: KeyModifiers::CONTROL })
                     => {
-                        response = ConsoleResponse::new();
+                        response = ConsoleTextState::new();
                         response.cancel = false;
                         response.quit = true;
                         break;
                     },
                     Key(KeyEvent{ code: KeyCode::Char('d'), modifiers: KeyModifiers::CONTROL })
                     => {
-                        response = ConsoleResponse::new();
+                        response = ConsoleTextState::new();
                         response.cancel = true;
                         response.quit = false;
                         break;
@@ -304,5 +318,9 @@ pub fn interaction(message: &str) -> ConsoleResponse {
     // disabling raw mode
     disable_raw_mode().unwrap();
     println!("");
-    return response;
+    return ConsoleResponse {
+        cancel: response.cancel,
+        quit: response.quit,
+        state: response.to_string(),
+    };
 }
