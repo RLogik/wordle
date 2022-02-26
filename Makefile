@@ -90,6 +90,6 @@ clean:
 # ACHIVE: Python variant
 ################################
 setup-py:
-	@python3 -m pip install -r "src-py/requirements"
+	@${PYTHON} -m pip install -r "src-py/requirements"
 run-py:
-	@python3 src-py/main.py -it "${PATH_TO_DATA}"
+	@${PYTHON} src-py/main.py -it "${PATH_TO_DATA}"
