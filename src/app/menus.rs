@@ -82,7 +82,7 @@ pub fn show_end_screen(config: &ConfigParams) {
 // ----------------------------------------------------------------
 
 pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
-    let mut state: WordlState;
+    let mut state = WordlState::empty();
     // first restrict list of words to appropriate size:
     let mut words_remaining = words.clone()
         .iter()
@@ -121,7 +121,7 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
 
         // ask for next guess + feedback from game:
         loop {
-            let (state_, cancel, quit) = sub_menu_next_guess(config, &suggestion);
+            let (state_, _, cancel, quit) = sub_menu_next_guess(config, &suggestion);
             state = state_;
             if quit {
                 return;
@@ -142,8 +142,15 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
     println!("");
     match words_remaining.get(0) {
         Some(word) => {
+            // if last state was incorrect and an option remains, then add in missing feedback, as loop terminated
+            if !state.is_correct() && words_remaining.len() > 0 {
+                let state = WordlState::from(word, word);
+                let feedback = state.to_string_with_feedback();
+                let feedback_anon = state.to_string_with_feedback_anon();
+                summary.push(if config.anonymous_feedback { feedback_anon } else { feedback });
+            }
             // display summary:
-            println!("\nThe solution is {} and your path to the solution was as follows:\n", word);
+            println!("\nThe solution is \x1b[1m{}\x1b[0m and your path to the solution was as follows:\n", word);
             for feedback in summary.iter() {
                 println!("{}", feedback);
             }
@@ -163,13 +170,13 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
     }
 }
 
-fn sub_menu_next_guess(config: &ConfigParams, suggestion: &Option<String>) -> (WordlState, bool, bool) {
+fn sub_menu_next_guess(config: &ConfigParams, suggestion: &Option<String>) -> (WordlState, String, bool, bool) {
     // let example: WordlState = WordlState::new(EXAMPLE_GUESS, EXAMPLE_FEEDBACK);
 
     // give user option to select top guess:
     let response = cli::prompt::confirm("Choose the top suggestion as your next guess? (y/n) >> ");
     if response.cancel || response.quit {
-        return (WordlState::empty(), response.cancel, response.quit);
+        return (WordlState::empty(), String::from(""), response.cancel, response.quit);
     }
     let guess: String;
     if response.state {
@@ -192,7 +199,7 @@ fn sub_menu_next_guess(config: &ConfigParams, suggestion: &Option<String>) -> (W
             })
         );
         if response.cancel || response.quit {
-            return (WordlState::empty(), response.cancel, response.quit);
+            return (WordlState::empty(), String::from(""), response.cancel, response.quit);
         }
         guess = response.state;
     }
@@ -219,9 +226,9 @@ fn sub_menu_next_guess(config: &ConfigParams, suggestion: &Option<String>) -> (W
         })
     );
     if response.cancel || response.quit {
-        return (WordlState::empty(), response.cancel, response.quit);
+        return (WordlState::empty(), String::from(""), response.cancel, response.quit);
     }
     let feedback = response.state;
 
-    return (WordlState::new(guess.as_str(), feedback.as_str()), false, false);
+    return (WordlState::new(guess.as_str(), feedback.as_str()), guess, false, false);
 }
