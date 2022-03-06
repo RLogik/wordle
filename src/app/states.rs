@@ -18,6 +18,7 @@ pub struct WordlState {
     pub constraints: Vec<WordlConstraint>,
     repr: String,
     repr_feedback: String,
+    repr_feedback_anon: String,
 }
 
 pub struct WordlCharState {
@@ -26,6 +27,7 @@ pub struct WordlCharState {
     pub partial: bool,
     repr: String,
     repr_feedback: String,
+    repr_feedback_anon: String,
 }
 
 pub struct WordlConstraint {
@@ -106,20 +108,22 @@ impl WordlCharState {
             partial: partial,
             repr: String::from(""),
             repr_feedback: String::from(""),
+            repr_feedback_anon: String::from(""),
         };
-        state.repr = state.to_representation(false);
-        state.repr_feedback = state.to_representation(true);
+        state.repr = state.to_representation(false, false);
+        state.repr_feedback = state.to_representation(true, false);
+        state.repr_feedback_anon = state.to_representation(true, true);
         return state;
     }
 
-    fn to_representation(self: &Self, with_feedback: bool) -> String {
+    fn to_representation(self: &Self, with_feedback: bool, anon: bool) -> String {
         if with_feedback {
             if ! self.correct {
-                return format!("[\x1b[91m{}\x1b[0m]", &self.symbol);
+                return if anon { String::from("⬛") } else { format!("[\x1b[91m{}\x1b[0m]", &self.symbol) };
             } else if ! self.partial {
-                return format!("[\x1b[92m{}\x1b[0m]", &self.symbol);
+                return if anon { String::from("🟩") } else { format!("[\x1b[92m{}\x1b[0m]", &self.symbol) };
             } else {
-                return format!("[\x1b[93m{}\x1b[0m]", &self.symbol);
+                return if anon { String::from("🟨") } else { format!("[\x1b[93m{}\x1b[0m]", &self.symbol) };
             }
         } else {
             return format!("[{}]", &self.symbol);
@@ -141,6 +145,14 @@ impl WordlCharState {
     pub fn as_str_with_feedback<'life>(self: &'life Self) -> &'life str {
         return self.repr_feedback.as_str();
     }
+
+    pub fn to_string_with_feedback_anon(self: &Self) -> String {
+        return self.repr_feedback_anon.clone();
+    }
+
+    pub fn as_str_with_feedback_anon<'life>(self: &'life Self) -> &'life str {
+        return self.repr_feedback_anon.as_str();
+    }
 }
 
 // ----------------------------------------------------------------
@@ -154,7 +166,8 @@ impl WordlState {
             states: Vec::<WordlCharState>::new(),
             constraints: Vec::<WordlConstraint>::new(),
             repr: String::from(""),
-            repr_feedback: String::from("")
+            repr_feedback: String::from(""),
+            repr_feedback_anon: String::from(""),
         };
     }
 
@@ -210,10 +223,12 @@ impl WordlState {
             states,
             constraints,
             repr: String::from(""),
-            repr_feedback: String::from("")
+            repr_feedback: String::from(""),
+            repr_feedback_anon: String::from(""),
         };
-        states.repr = states.to_representation(false);
-        states.repr_feedback = states.to_representation(true);
+        states.repr = states.to_representation(false, false);
+        states.repr_feedback = states.to_representation(true, false);
+        states.repr_feedback_anon = states.to_representation(true, true);
         return states;
     }
 
@@ -239,18 +254,21 @@ impl WordlState {
             .collect::<Vec<String>>();
     }
 
-    fn to_representation(self: &Self, with_feedback: bool) -> String {
-        if with_feedback {
-            return self.states.iter()
-                .map(|state| state.to_string_with_feedback())
-                .collect::<Vec<String>>()
-                .join("");
-        } else {
-            return self.states.iter()
-                .map(|state| state.to_string())
-                .collect::<Vec<String>>()
-                .join("");
-        }
+    fn to_representation(self: &Self, with_feedback: bool, anon: bool) -> String {
+        return self.states.iter()
+            .map(
+                if with_feedback {
+                    if anon {
+                        |state: &WordlCharState| state.to_string_with_feedback_anon()
+                    } else {
+                        |state: &WordlCharState| state.to_string_with_feedback()
+                    }
+                } else {
+                    |state: &WordlCharState| state.to_string()
+                }
+            )
+            .collect::<Vec<String>>()
+            .join("");
     }
 
     pub fn len(self: &Self) -> usize {
@@ -271,6 +289,14 @@ impl WordlState {
 
     pub fn as_str_with_feedback<'life>(self: &'life Self) -> &'life str {
         return self.repr_feedback.as_str();
+    }
+
+    pub fn to_string_with_feedback_anon(self: &Self) -> String {
+        return self.repr_feedback_anon.clone();
+    }
+
+    pub fn as_str_with_feedback_anon<'life>(self: &'life Self) -> &'life str {
+        return self.repr_feedback_anon.as_str();
     }
 }
 

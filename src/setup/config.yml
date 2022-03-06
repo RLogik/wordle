@@ -12,3 +12,4 @@ settings:
   max-display-length: 10 # for displaying remaining words in list
   max-length-for-best-optimisation: 1000
   hard-mode: true
+  anonymous-feedback: true

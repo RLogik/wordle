@@ -21,6 +21,7 @@ pub struct ConfigParams {
     pub max_display_length: usize,
     pub max_length_for_best_optimisation: usize,
     pub hard_mode: bool,
+    pub anonymous_feedback: bool,
 }
 
 pub static PATH_TO_CONFIG: &str = "src/setup/config.yml";
@@ -46,5 +47,7 @@ pub fn set_config(spec: &Yaml, version: &String) -> ConfigParams {
             utils::i64_to_usize(utils::attribute_or_default(spec["settings"]["max-length-for-best-optimisation"].as_i64(), 500)),
         hard_mode:
             utils::attribute_or_default(spec["settings"]["hard-mode"].as_bool(), false),
+        anonymous_feedback:
+            utils::attribute_or_default(spec["settings"]["hard-mode"].as_bool(), true),
     };
 }
