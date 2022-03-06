@@ -237,6 +237,13 @@ impl WordlState {
         return compare_guess(guess, solution);
     }
 
+    pub fn is_correct(self: Self) -> bool {
+        for state in self.states.iter() {
+            if !state.correct || state.partial { return false; }
+        }
+        return true;
+    }
+
     pub fn is_compatible_with(self: &Self, word: &String) -> bool {
         for constraint in self.constraints.iter() {
             if ! constraint.satisfies(word) {
