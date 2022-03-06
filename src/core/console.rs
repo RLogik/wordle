@@ -28,7 +28,7 @@ use super::utils;
 /// ## Parts ##
 ///
 /// - `state` - value type T
-/// - `state` - boolean which says if META + D was clicked
+/// - `cancel` - boolean which says if META + D was clicked
 /// - `quit` - boolean which says if META + C was clicked
 pub struct ConsoleResponse<T> {
     pub state: T,
