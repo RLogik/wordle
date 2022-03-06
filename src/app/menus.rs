@@ -89,6 +89,7 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
         .filter(|&word| (word.len() == config.size_of_wordle))
         .map(|word| (word.clone()))
         .collect::<Vec<String>>();
+    let mut summary = Vec::<String>::new();
 
     // Main cycle:
     while words_remaining.len() > 1 {
@@ -129,7 +130,10 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
             }
             break;
         }
-        println!("\nThe current state is: {}.", state.to_string_with_feedback());
+        let feedback = state.to_string_with_feedback();
+        let feedback_anon = state.to_string_with_feedback_anon();
+        println!("\nThe current state is: {}.", feedback);
+        summary.push(if config.anonymous_feedback { feedback_anon } else { feedback });
         // update state:
         words_remaining = state.constrain(&words_remaining);
     }
@@ -138,13 +142,11 @@ pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
     println!("");
     match words_remaining.get(0) {
         Some(word) => {
-            let state = WordlState::from(word, word);
-            println!("{}", utils::dedent_ignore_first_last(
-                "
-                Only one word left. The solution must be:
-                  {}.
-                "
-            ).format(&[state.to_string_with_feedback()]));
+            // display summary:
+            println!("\nThe solution is {} and your path to the solution was as follows:\n", word);
+            for feedback in summary.iter() {
+                println!("{}", feedback);
+            }
         },
         None => {
             eprintln!("[\x1b[93;1mWARNING\x1b[0m] No solution found, as there are no words remaining!");
@@ -199,7 +201,7 @@ fn sub_menu_next_guess(config: &ConfigParams, suggestion: &Option<String>) -> (W
         "
 
         Enter the feedback to your input \x1b[1m{}\x1b[0m
-          \x1b[2mE.g. if it was     \x1b[2;1mx  x  ~  x  √\x1b[0m
+          \x1b[2mE.g. if it was                  \x1b[2;1mx  x  ~  x  √\x1b[0m
           \x1b[2mthen enter \x1b[4;1mxx-x1\x1b[0m\x1b[2m.\x1b[0m
 
         {}"
