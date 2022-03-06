@@ -7,7 +7,7 @@ extern crate rust_embed;
 extern crate textwrap;
 extern crate yaml_rust;
 
-use std::io;
+use std::io::{self, Write}; // !!! NOTE: Need io::Write, so that write! works !!!
 use std::collections::HashMap;
 
 use self::regex::Regex;
@@ -30,6 +30,18 @@ pub fn construct_regex(pattern: &str) -> Regex {
 
 pub fn read_file(path: &str) -> Result<String, io::Error> {
     return std::fs::read_to_string(path);
+}
+
+pub fn write_file(path: &str, lines: &Vec<String>) -> Result<(), io::Error> {
+    let mut fp = std::fs::File::create(path)
+        .expect("Unable to create file");
+    for line in lines.iter() {
+        match writeln!(fp, "{}", line) {
+            Ok(_) => { },
+            Err(err) => { return Err(err); },
+        }
+    }
+    return Ok(());
 }
 
 pub fn read_file_to_lines(path: &str, skip_empty: bool) -> Result<Vec<String>, io::Error> {
