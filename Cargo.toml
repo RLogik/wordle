@@ -13,3 +13,4 @@ yaml-rust = { git = "https://github.com/chyh1990/yaml-rust.git", version = "0.4.
 closure = { version = "0.3.0" }
 mint = { version = "0.5.9" }
 crossterm = { version = "0.23.0" }
+itertools = { version = "0.10.3" }
