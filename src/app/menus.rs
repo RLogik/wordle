@@ -33,28 +33,48 @@ pub fn show_start_screen(config: &ConfigParams) {
     println!("");
     println!("{}", utils::dedent_ignore_first_last(
         "
-        .----------------
+        * --------------------------------
         | \x1b[92;1m{}\x1b[0m
+        |
         |   version: \x1b[1m{}\x1b[0m
         |   url:     \x1b[2;4m{}\x1b[0m
-        .--------
+        * ----------------
+        {}
         "
     ).format(&[
-        &config.title,
+        &config.title.to_uppercase(),
         &config.version,
         &config.url,
+        "",
     ]));
 
     if !(&config.notes == "") {
-        println!("\n\x1b[2mNOTE: {}\x1b[0m", &config.notes);
+        println!("\x1b[2mNOTE: {}\x1b[0m", &config.notes);
     }
 }
 
 pub fn show_end_screen(config: &ConfigParams) {
     println!("");
-    println!("\x1b[3mThank you for using \x1b[92;1m{}\x1b[0m\x1b[3m!\x1b[0m", &config.title);
-    println!("Terminating programme...");
-    println!("");
+    println!("{}", utils::dedent_ignore_first_last(
+        "
+        Thank you for using
+
+        * --------------------------------
+        | \x1b[92;1m{}\x1b[0m
+        |
+        |   version: \x1b[1m{}\x1b[0m
+        |   url:     \x1b[2;4m{}\x1b[0m
+        * ----------------
+
+        Terminating programme.
+        {}
+        "
+    ).format(&[
+        &config.title.to_uppercase(),
+        &config.version,
+        &config.url,
+        "",
+    ]));
 }
 
 // ----------------------------------------------------------------
@@ -63,7 +83,12 @@ pub fn show_end_screen(config: &ConfigParams) {
 
 pub fn main_menu(config: &ConfigParams, words: &Vec<String>) {
     let mut state: WordlState;
-    let mut words_remaining = words.clone();
+    // first restrict list of words to appropriate size:
+    let mut words_remaining = words.clone()
+        .iter()
+        .filter(|&word| (word.len() == config.size_of_wordle))
+        .map(|word| (word.clone()))
+        .collect::<Vec<String>>();
 
     // Main cycle:
     while words_remaining.len() > 1 {
