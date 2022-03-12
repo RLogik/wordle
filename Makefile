@@ -1,3 +1,4 @@
+SHELL:=/usr/bin/env bash
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Makefile
 # NOTE: Do not change the contents of this file!
