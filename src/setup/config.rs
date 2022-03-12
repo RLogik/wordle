@@ -17,6 +17,7 @@ pub struct ConfigParams {
     pub title: String,
     pub url: String,
     pub notes: String,
+    pub path_to_words: String,
     pub size_of_wordle: usize,
     pub max_display_length: usize,
     pub max_length_for_best_optimisation: usize,
@@ -39,6 +40,8 @@ pub fn set_config(spec: &Yaml, version: &String) -> ConfigParams {
             utils::attribute_or_default(spec["info"]["url"].as_str(), "<url missing>").to_string(),
         notes:
             utils::attribute_or_default(spec["info"]["notes"].as_str(), "").to_string(),
+        path_to_words:
+            utils::attribute_or_default(spec["settings"]["path-to-words"].as_str(), "words_nyt.txt").to_string(),
         size_of_wordle:
             utils::i64_to_usize(utils::attribute_or_default(spec["settings"]["size-of-wordle"].as_i64(), 4)),
         max_display_length:

@@ -11,6 +11,7 @@ use self::rust_embed::RustEmbed;
 use self::yaml_rust::Yaml;
 
 use crate::core::utils;
+use crate::setup::config::ConfigParams;
 
 // ----------------------------------------------------------------
 // Assets
@@ -37,8 +38,9 @@ struct AssetsVersion;
 // Methods - get data
 // ----------------------------------------------------------------
 
-pub fn get_data() -> Result<Vec<String>, io::Error> {
-    return utils::read_from_embedded_file(AssetsData::get("words.txt").unwrap())
+pub fn get_data(config: &ConfigParams) -> Result<Vec<String>, io::Error> {
+    let file_path = config.path_to_words.as_str();
+    return utils::read_from_embedded_file(AssetsData::get(file_path).unwrap())
         .and_then(|contents| Ok(read_words(&contents)));
 }
 

@@ -6,8 +6,11 @@ info:
   url: https://github.com/RLogik
   notes: |-
     The Wordle gamme can for example be found under
-    https://www.nytimes.com/games/wordle/index.html .
+    https://www.nytimes.com/games/wordle/index.html.
 settings:
+  # relative to assets folder:
+  path-to-words: words.txt
+  # parameters of game:
   size-of-wordle: 5
   max-display-length: 10 # for displaying remaining words in list
   max-length-for-best-optimisation: 1000
