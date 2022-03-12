@@ -12,14 +12,14 @@ use wordle::setup;
 // ----------------------------------------------------------------
 
 fn main() {
-    // get assets
+    // get assets +  config
     let version = setup::assets::get_version();
     let spec = setup::assets::get_config()
         .unwrap_or_else(|err| panic!("{}", err));
-    // set config
     let config = setup::config::set_config(&spec, &version);
     let words = setup::assets::get_data(&config)
         .unwrap_or_else(|err| panic!("{}", err));
+
     // run methods
     app::menus::show_start_screen(&config);
     app::menus::main_menu(&config, &words);
