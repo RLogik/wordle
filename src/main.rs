@@ -2,26 +2,26 @@
 // IMPORTS
 // ----------------------------------------------------------------
 
-extern crate wordle;
+pub mod app;
+pub mod cli;
+pub mod core;
+pub mod display;
+pub mod models;
+pub mod setup;
 
-use wordle::app;
-use wordle::setup;
+use setup::assets;
+use setup::config;
+use app::run::main_cycle;
 
 // ----------------------------------------------------------------
 // MAIN METHOD
 // ----------------------------------------------------------------
 
+/// get assets +  config and run application
 fn main() {
-    // get assets +  config
-    let version = setup::assets::get_version();
-    let spec = setup::assets::get_config()
+    let version = assets::get_version();
+    let spec = assets::get_config()
         .unwrap_or_else(|err| panic!("{}", err));
-    let config = setup::config::set_config(&spec, &version);
-    let words = setup::assets::get_data(&config)
-        .unwrap_or_else(|err| panic!("{}", err));
-
-    // run methods
-    app::menus::show_start_screen(&config);
-    app::menus::main_menu(&config, &words);
-    app::menus::show_end_screen(&config);
+    let mut config = config::set_config(&spec, &version);
+    main_cycle(&mut config);
 }
