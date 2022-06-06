@@ -6,12 +6,12 @@ extern crate mint;
 
 use std::collections::HashMap;
 
-use crate::app::states::WordlState;
-use crate::app::states::change_distance;
+use crate::models::states::WordleState;
+use crate::models::states::change_distance;
 use crate::core::utils;
 use crate::core::comparison;
 
-use super::basic::get_entropy;
+use crate::app::tactics::basic::get_entropy;
 
 // ----------------------------------------------------------------
 // Tactic sort by potential remaining size
@@ -23,7 +23,7 @@ fn get_average_size_of_remaining_words(words: &Vec<String>) -> HashMap<String, f
     for (_, guess) in words.iter().enumerate() {
         let mut count = 0;
         for (_, solution) in words.iter().enumerate() {
-            let state = WordlState::from(guess, solution);
+            let state = WordleState::from(guess, solution);
             let word_remaining = state.constrain(words);
             count += word_remaining.len();
         }

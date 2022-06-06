@@ -7,18 +7,18 @@ extern crate dyn_fmt;
 use self::dyn_fmt::AsStrFormatExt;
 
 use crate::core::utils;
-use crate::setup::config::ConfigParams;
+use crate::models::config::ConfigParams;
 
 // ----------------------------------------------------------------
 // Validators
 // ----------------------------------------------------------------
 
-pub fn validate_guess(guess: &String, config: &ConfigParams) -> bool {
+pub fn validate_guess(guess: &String, config: &ConfigParams) -> Option<()> {
     let n = config.size_of_wordle;
     let re1 = utils::construct_regex(r"^\w*$");
     let re2 = utils::construct_regex(r"^\D*$");
     if utils::length_of_word(guess) == n && re1.is_match(guess) && re2.is_match(guess) {
-        return true;
+        return Some(());
     } else {
         println!("{}\n", utils::dedent_ignore_first_last(
             "
@@ -28,15 +28,15 @@ pub fn validate_guess(guess: &String, config: &ConfigParams) -> bool {
             - Length of guess must be {}.
             "
         ).format(&[n]));
-        return false;
+        return None;
     }
 }
 
-pub fn validate_feedback(_guess: &String, feedback: &String, config: &ConfigParams) -> bool {
+pub fn validate_feedback(_guess: &String, feedback: &String, config: &ConfigParams) -> Option<()> {
     let n = config.size_of_wordle;
     let re = utils::construct_regex(r"^[01x-]*$");
     if utils::length_of_word(feedback) == n && re.is_match(feedback) {
-        return true;
+        return Some(());
     } else {
         print!("{}\n", utils::dedent_ignore_first_last(
             "
@@ -47,6 +47,6 @@ pub fn validate_feedback(_guess: &String, feedback: &String, config: &ConfigPara
             - Letters marked (correct|partially correct|incorrect) must be disjoint!
             "
         ).format(&[n]));
-        return false;
+        return None;
     }
 }
