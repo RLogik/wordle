@@ -1,14 +1,19 @@
 [package]
 name = "wordle"
-version = "0.0.2"
+version = "0.1.0"
 authors = [ "RLogik" ]
+
+[workspace]
+members = [
+    ".",
+]
 
 [dependencies]
 rust-embed = { version = "6.3.0" }
 argparse = { version = "0.2.2" }
 regex = { git = "https://github.com/rust-lang/regex.git", version = "1.5.4" }
 dyn-fmt = { version = "0.3.0" }
-textwrap = { version = "0.14.2" }
+textwrap = { version = "0.15.0" }
 yaml-rust = { git = "https://github.com/chyh1990/yaml-rust.git", version = "0.4.4" }
 closure = { version = "0.3.0" }
 mint = { version = "0.5.9" }
