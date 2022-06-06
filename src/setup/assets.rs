@@ -6,12 +6,14 @@ extern crate rust_embed;
 extern crate yaml_rust;
 
 use std::io;
+use std::fs;
+use std::io::BufRead;
 
 use self::rust_embed::RustEmbed;
 use self::yaml_rust::Yaml;
 
+
 use crate::core::utils;
-use crate::setup::config::ConfigParams;
 
 // ----------------------------------------------------------------
 // Assets
@@ -38,10 +40,22 @@ struct AssetsVersion;
 // Methods - get data
 // ----------------------------------------------------------------
 
-pub fn get_data(config: &ConfigParams) -> Result<Vec<String>, io::Error> {
-    let file_path = config.path_to_words.as_str();
-    return utils::read_from_embedded_file(AssetsData::get(file_path).unwrap())
-        .and_then(|contents| Ok(read_words(&contents)));
+pub fn get_data(file_path: &String) -> io::Result::<Vec<String>> {
+    let words: Vec<String>;
+    match AssetsData::get(file_path.as_str()) {
+        Some(f) => {
+            words = read_words(&utils::read_from_embedded_file(f)?);
+        },
+        None => {
+            let fp = fs::File::open(file_path)?;
+            let buffer = io::BufReader::new(fp);
+            words = buffer
+                .lines()
+                .map(|line| line.expect("Could not read"))
+                .collect::<Vec<String>>();
+        }
+    }
+    return Ok(words);
 }
 
 pub fn read_words(contents: &String) -> Vec<String> {

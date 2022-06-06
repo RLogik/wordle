@@ -7,23 +7,11 @@ extern crate yaml_rust;
 use self::yaml_rust::Yaml;
 
 use crate::core::utils;
+use crate::models::config::ConfigParams;
 
 // ----------------------------------------------------------------
-// Structure
+// CONSTANTS
 // ----------------------------------------------------------------
-
-pub struct ConfigParams {
-    pub version: String,
-    pub title: String,
-    pub url: String,
-    pub notes: String,
-    pub path_to_words: String,
-    pub size_of_wordle: usize,
-    pub max_display_length: usize,
-    pub max_length_for_best_optimisation: usize,
-    pub hard_mode: bool,
-    pub anonymous_feedback: bool,
-}
 
 pub static PATH_TO_CONFIG: &str = "src/setup/config.yml";
 
@@ -32,6 +20,13 @@ pub static PATH_TO_CONFIG: &str = "src/setup/config.yml";
 // ----------------------------------------------------------------
 
 pub fn set_config(spec: &Yaml, version: &String) -> ConfigParams {
+    let paths_empty = Vec::<Yaml>::new();
+    let paths = spec["settings"]["paths"]
+        .as_vec()
+        .unwrap_or_else(|| &paths_empty)
+        .iter()
+        .map(|value| value.as_str().unwrap().to_string())
+        .collect::<Vec<String>>();
     return ConfigParams {
         version: version.clone(),
         title:
@@ -40,8 +35,9 @@ pub fn set_config(spec: &Yaml, version: &String) -> ConfigParams {
             utils::attribute_or_default(spec["info"]["url"].as_str(), "<url missing>").to_string(),
         notes:
             utils::attribute_or_default(spec["info"]["notes"].as_str(), "").to_string(),
+        paths: paths,
         path_to_words:
-            utils::attribute_or_default(spec["settings"]["path-to-words"].as_str(), "words_nyt.txt").to_string(),
+            utils::attribute_or_default(spec["settings"]["path-to-words"].as_str(), "words.txt").to_string(),
         size_of_wordle:
             utils::i64_to_usize(utils::attribute_or_default(spec["settings"]["size-of-wordle"].as_i64(), 4)),
         max_display_length:
