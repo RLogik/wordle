@@ -8,15 +8,7 @@ use self::argparse::ArgumentParser;
 use self::argparse::StoreTrue;
 use self::argparse::Store;
 
-// ----------------------------------------------------------------
-// Argument Parser - data structure
-// ----------------------------------------------------------------
-
-pub struct CmdArguments {
-    pub quiet: bool,
-    pub path: String,
-    pub interactive: bool,
-}
+use crate::models::cli::CmdArguments;
 
 // ----------------------------------------------------------------
 // Argument Parser
