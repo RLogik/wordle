@@ -14,10 +14,7 @@ Developers should ideally have the following installed:
 
 - a **bash** terminal. This is already provided with Linux/OSX.
   Windows users can install bash for example via <https://gitforwindows.org> (-> gitbash).
-- the **make** tool, which can be found on the [GNU website](https://www.gnu.org/software/make).
-  Alternatively, one can use
-  the [Homebrew formula](https://formulae.brew.sh/formula/make) (for Linux/OSX users)
-  or the [Chocolatey recipe](https://community.chocolatey.org/packages/make) (for Windows users).
+- the **just** tool, which can be found on [here](https://github.com/casey/just#installation).
 
 ### Rust ###
 
@@ -36,13 +33,13 @@ Use **Python 3.10.x** (only relevant if one wishes to use the python code).
 
 Provided the above system requirements are satisfied, run
 ```bash
-make setup
+just setup
 ```
 from the root of the project.
 
 Provided setup has been completed and system requirements are met, call:
 ```bash
-make build
+just build
 ```
 in a bash terminal from the project root,
 in order to install the package dependencies ('crates').
@@ -51,8 +48,8 @@ in order to install the package dependencies ('crates').
 
 In a bash terminal from the project root, call
 ```bash
-make build # only need this once
-make run
+just build # only need this once
+just run
 ```
 The `build` target creates a binary in the [`./dist/`](dist/) folder,
 and this can also be manually executed.
